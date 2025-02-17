@@ -77,9 +77,7 @@
         ] );
     }
 
-    function post_tab_category_ajax(){
-        
-    }
+    
 
 
 
