@@ -1,12 +1,19 @@
 jQuery(function($){
+    // alert(post_tab_ajax.ajax_url);
     $(".tabs li").click(function() {
-        var targetCategory = $(this).data("target");
+        let targetCategory = $(this).data("target");
 
         $(".tabs li").removeClass("active");
         $(this).addClass("active");
 
-        $(".content").hide();
-        $(".content[data-category='" + targetCategory + "']").fadeIn();
+        $.ajax({
+            type: "POST",
+            url: post_tab_ajax.ajax_url,
+            data: {
+               action: 'post_submit_callback_action',
+               category_id: targetCategory
+            },
+        })
     });
 
     

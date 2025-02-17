@@ -51,6 +51,8 @@
                     while($query->have_posts()) : $query->the_post() ; 
                     $categories = get_the_category(); 
                     $category_id = (!empty($categories)) ? $categories[0]->term_id : ''; 
+                    
+                    
                     ?>
                     <div class="content" data-category="<?php echo esc_attr($category_id); ?>">
                         <h2><?php  the_title(); ?>  </h2>
@@ -70,6 +72,9 @@
     function post_enqueue_script(){
         wp_enqueue_style('post-tab-css', PLUGIN_ASSETS__URL. 'css/style.css');
         wp_enqueue_script('post-tab-js', PLUGIN_ASSETS__URL. 'js/main.js', ['jquery'], '1.0.0', true);
+        wp_localize_script( 'post-tab-js', 'post_tab_ajax', [
+            'ajax_url' => admin_url('admin-ajax.php')
+        ] );
     }
 
     function post_tab_category_ajax(){
