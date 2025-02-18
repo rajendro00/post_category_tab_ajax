@@ -17,7 +17,6 @@ class Post_Category_Tab {
         add_action('wp_enqueue_scripts', [$this, 'post_enqueue_script']);
         add_action('wp_ajax_load_category_posts', [$this, 'load_category_posts_callback']);
         add_action('wp_ajax_nopriv_load_category_posts', [$this, 'load_category_posts_callback']);
-
         define('PLUGIN_ASSETS__URL', plugin_dir_url(__FILE__) . 'assets/');
     }
 
@@ -44,7 +43,6 @@ class Post_Category_Tab {
                 <p>Select a category to load posts.</p>
             </div>
         </div>
-
         <?php return ob_get_clean();
     }
 
