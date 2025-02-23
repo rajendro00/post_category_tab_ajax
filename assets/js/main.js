@@ -1,13 +1,29 @@
 jQuery(function($) {
-   $(".tab-item").on("click", function(){
+   $(".tab-item").on("click", function(e){
     var target = $(this).data("target");
+    $('.post-preloader').show();
+    $.post(post_tab_ajax.ajax_url, {      //POST request
+         _nonce: post_tab_ajax.nonce, //nonce
+        action: "post_tab",         //action
+        cat: target               //data
+        }, function(data) {    
+            $('.post-preloader').hide();
+            $('.tab-content-item').html(data);
+        }
+    );
 
-            // Remove 'active' class from all tabs and contents
-            $(".tab-item").removeClass("active");
-            $(".tab-content-item").removeClass("active").hide();
-
-            // Add 'active' class to clicked tab and corresponding content
-            $(this).addClass("active");
-            $('.tab-content-item[data-category="' + target + '"]').addClass("active").fadeIn();
+   });
+   $(window).on("load", function(){ 
+    let catId = $(".tab-items li:first-child").data("target");
+    $.post(post_tab_ajax.ajax_url, {      //POST request
+        _nonce: post_tab_ajax.nonce, //nonce
+       action: "post_tab",         //action
+       cat: catId               //data
+       }, function(data) {    
+                  //callback
+            $('.post-preloader').hide();
+           $('.tab-content-item').html(data);
+       }
+   );
    });
 });

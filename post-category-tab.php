@@ -16,6 +16,7 @@ class Post_Category_Tab {
         add_shortcode('post_category_tab_shortcode', [$this, 'post_category_tab_display']);
         add_action('wp_enqueue_scripts', [$this, 'post_enqueue_script']);
         define('PLUGIN_ASSETS__URL', plugin_dir_url(__FILE__) . 'assets/');
+        add_action( 'wp_ajax_post_tab', [$this, 'post_tab'] );
     }
 
     function post_category_tab_display() { 
@@ -28,7 +29,7 @@ class Post_Category_Tab {
             <?php  
             $terms = get_terms(array(
                 'taxonomy'   => 'category',
-                'hide_empty' => false,
+                'hide_empty' => true
             ));
             
             if (!empty($terms) && !is_wp_error($terms)) {
@@ -44,42 +45,12 @@ class Post_Category_Tab {
         </ul>
 
         <div class="tab-content-items">
-            <?php  
-            if (!empty($terms) && !is_wp_error($terms)) {
-                foreach ($terms as $category) {
-                    $term_id = $category->term_id;
-                    
-                    $args = array(
-                        'post_type'      => 'post',
-                        'tax_query'      => array(
-                            array(
-                                'taxonomy' => 'category',
-                                'field'    => 'term_id',
-                                'terms'    => $term_id,
-                            ),
-                        ),
-                        'posts_per_page' => 5,
-                    );
-
-                    $query = new WP_Query($args);
-
-                    if ($query->have_posts()) { ?>
-                        <div class="tab-content-item" data-category="<?php echo esc_attr($term_id); ?>">
-                            <?php
-                            while ($query->have_posts()) {
-                                $query->the_post(); ?>
-                                <h1><?php the_title(); ?></h1>
-                                <p><?php the_excerpt(); ?></p>
-                                <?php if (has_post_thumbnail()) { ?>
-                                    <img src="<?php echo esc_url(get_the_post_thumbnail_url()); ?>" alt="">
-                                <?php } ?>
-                            <?php } ?>
-                        </div>
-                    <?php }
-                    wp_reset_postdata();
-                }
-            }
-            ?>
+            <div class="post-preloader">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle fill="#FF156D" stroke="#FF156D" stroke-width="15" r="15" cx="40" cy="65"><animate attributeName="cy" calcMode="spline" dur="2" values="65;135;65;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.4"></animate></circle><circle fill="#FF156D" stroke="#FF156D" stroke-width="15" r="15" cx="100" cy="65"><animate attributeName="cy" calcMode="spline" dur="2" values="65;135;65;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.2"></animate></circle><circle fill="#FF156D" stroke="#FF156D" stroke-width="15" r="15" cx="160" cy="65"><animate attributeName="cy" calcMode="spline" dur="2" values="65;135;65;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="0"></animate></circle></svg>
+            </div>
+           <div class="tab-content-item active">
+             
+           </div>
         </div>
     </div>
 </div>
@@ -91,11 +62,37 @@ class Post_Category_Tab {
         wp_enqueue_style('post-tab-css', PLUGIN_ASSETS__URL . 'css/style.css');
         wp_enqueue_script('post-tab-js', PLUGIN_ASSETS__URL . 'js/main.js', ['jquery'], '1.0.0', true);
         wp_localize_script('post-tab-js', 'post_tab_ajax', [
-            'ajax_url' => admin_url('admin-ajax.php')
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce'    => wp_create_nonce('post_tab_nonce'),
         ]);
     }
-
-    
+  public function post_tab() {
+    check_ajax_referer('post_tab_nonce', '_nonce');
+    $args = [
+        'post_type'      => 'post',
+        'tax_query'      => [
+            [
+                'taxonomy' => 'category',
+                'field'    => 'term_id',
+                'terms'    => $_POST['cat'],
+            ],
+        ],
+    ];
+    $post = new \WP_Query($args);
+    if ($post->have_posts()) {
+        while ($post->have_posts()) {
+            $post->the_post();
+            ?>
+            <h1><?php the_title(); ?></h1>
+            <p><?php the_excerpt(); ?></p>
+            <?php if (has_post_thumbnail()) { 
+                the_post_thumbnail();
+                 
+             }
+        }
+    }
+    wp_die( );
+  }
 }
 
 new Post_Category_Tab();
