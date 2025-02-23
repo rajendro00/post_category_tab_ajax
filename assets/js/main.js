@@ -1,26 +1,13 @@
 jQuery(function($) {
-    $(".tab-item").click(function () {
-        var category_id = $(this).data("target");
+   $(".tab-item").on("click", function(){
+    var target = $(this).data("target");
 
-        $(".tab-item").removeClass("active");
-        $(this).addClass("active");
+            // Remove 'active' class from all tabs and contents
+            $(".tab-item").removeClass("active");
+            $(".tab-content-item").removeClass("active").hide();
 
-        // Ensure visibility before showing loading message
-        $("#post-content").css("display", "block").html("<p>Loading posts...</p>");
-
-        $.ajax({
-            type: "POST",
-            url: post_tab_ajax.ajax_url,
-            data: {
-                action: "load_category_posts",
-                category_id: category_id,
-            },
-            success: function (response) {
-                $("#post-content").html(response).fadeIn(200); // Ensure content is shown
-            },
-            error: function () {
-                $("#post-content").html("<p>Something went wrong. Please try again.</p>").fadeIn(200);
-            },
-        });
-    });
+            // Add 'active' class to clicked tab and corresponding content
+            $(this).addClass("active");
+            $('.tab-content-item[data-category="' + target + '"]').addClass("active").fadeIn();
+   });
 });
